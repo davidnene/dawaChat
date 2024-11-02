@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 from datetime import datetime
 from auth import authenticate_user, create_access_token, get_password_hash
-from pdf_parser import parse_pdf
+from pdf_parser import process_and_store_pdf_content
 from models import DosageDocument, Doctor, Prescription
 from db import SessionLocal, engine
 from query_handler import get_dosage_info
@@ -60,8 +60,8 @@ def upload_dosage_pdf(file: UploadFile = File(...), db: Session = Depends(get_db
         buffer.write(file.file.read())
     
     # Parse and save to database
-    content = parse_pdf(file_path)
-    dosage_document = DosageDocument(title=file.filename, content=content, uploaded_by=current_user.id)
+    process_and_store_pdf_content(file_path)
+    dosage_document = DosageDocument(title=file.filename, content=file_path, uploaded_by=current_user.id)
     db.add(dosage_document)
     db.commit()
     return {"message": "Dosage PDF uploaded successfully"}
