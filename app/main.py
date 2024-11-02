@@ -64,3 +64,11 @@ def create_prescription(patient_id: int, medication: str, dosage: str, frequency
     db.add(prescription)
     db.commit()
     return {"message": "Prescription created successfully"}
+
+@app.post("/login")
+def login(email: str, password: str, db: Session = Depends(get_db)):
+    user = authenticate_user(email, password, db)
+    if not user:
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    token = create_access_token(data={"sub": user.email, "role": user.role})
+    return {"access_token": token, "token_type": "bearer"}
