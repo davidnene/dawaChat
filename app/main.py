@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 from datetime import datetime
-from .auth import authenticate_user, create_access_token, get_password_hash
+from auth import authenticate_user, create_access_token, get_password_hash
 from .pdf_parser import parse_pdf
 from .models import DosageDocument, Doctor, Prescription
 from .db import SessionLocal, engine
