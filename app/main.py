@@ -4,6 +4,7 @@ from .auth import authenticate_user, create_access_token
 from .pdf_parser import parse_pdf
 from .models import DosageDocument, Doctor
 from .db import SessionLocal, engine
+from .query_handler import get_dosage_info
 
 app = FastAPI()
 
@@ -32,3 +33,18 @@ def upload_dosage_pdf(file: UploadFile = File(...), db: Session = Depends(get_db
     db.add(dosage_document)
     db.commit()
     return {"message": "Dosage PDF uploaded successfully"}
+
+@app.get("/query-dosage/")
+def query_dosage(query: str, db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
+    # Ensure the user is authenticated as a doctor
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized access")
+
+    # Check if there is any existing dosage document in the system
+    dosage_document = db.query(DosageDocument).order_by(DosageDocument.id.desc()).first()
+    if not dosage_document:
+        raise HTTPException(status_code=404, detail="No dosage document found")
+
+    # Perform the query using the FAISS index loaded in get_dosage_info
+    response = get_dosage_info(query)
+    return {"response": response}
