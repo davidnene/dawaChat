@@ -1,8 +1,12 @@
 # seed_db.py
 from sqlalchemy.orm import Session
-from app.models import Doctor
-from app.db import SessionLocal, engine, Base
-from app.auth import get_password_hash
+from models import Doctor
+from db import SessionLocal, engine, Base
+from auth import get_password_hash
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
