@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
+from datetime import datetime
 from .auth import authenticate_user, create_access_token
 from .pdf_parser import parse_pdf
-from .models import DosageDocument, Doctor
+from .models import DosageDocument, Doctor, Prescription
 from .db import SessionLocal, engine
 from .query_handler import get_dosage_info
 
@@ -48,3 +49,18 @@ def query_dosage(query: str, db: Session = Depends(get_db), current_user: Doctor
     # Perform the query using the FAISS index loaded in get_dosage_info
     response = get_dosage_info(query)
     return {"response": response}
+
+@app.post("/prescribe/")
+def create_prescription(patient_id: int, medication: str, dosage: str, frequency: str, notes: str, db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
+    prescription = Prescription(
+        patient_id=patient_id,
+        doctor_id=current_user.id,
+        medication=medication,
+        dosage=dosage,
+        frequency=frequency,
+        notes=notes,
+        timestamp=datetime.now()
+    )
+    db.add(prescription)
+    db.commit()
+    return {"message": "Prescription created successfully"}
