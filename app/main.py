@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 from datetime import datetime
-from .auth import authenticate_user, create_access_token
+from .auth import authenticate_user, create_access_token, get_password_hash
 from .pdf_parser import parse_pdf
 from .models import DosageDocument, Doctor, Prescription
 from .db import SessionLocal, engine
 from .query_handler import get_dosage_info
+from .schemas import DoctorCreate
 
 app = FastAPI()
 
@@ -15,6 +16,36 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@app.post("/create-doctor/")
+def create_doctor(
+    doctor: DoctorCreate,
+    db: Session = Depends(get_db),
+    current_user: Doctor = Depends(authenticate_user)
+):
+    # Check if the current user is a super admin
+    if current_user.role != "super_admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to create doctor accounts")
+
+    # Check if the email is already taken
+    if db.query(Doctor).filter(Doctor.email == doctor.email).first():
+        raise HTTPException(status_code=400, detail="Email is already in use")
+
+    # Create a new doctor account
+    hashed_password = get_password_hash(doctor.password)
+    new_doctor = Doctor(
+        name=doctor.name,
+        email=doctor.email,
+        hashed_password=hashed_password,
+        role="doctor"
+    )
+
+    # Add the new doctor to the database
+    db.add(new_doctor)
+    db.commit()
+    db.refresh(new_doctor)
+
+    return {"message": f"Doctor {new_doctor.name} created successfully."}
 
 @app.post("/upload-dosage-pdf/")
 def upload_dosage_pdf(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
