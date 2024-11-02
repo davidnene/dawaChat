@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 from datetime import datetime
+from dotenv import load_dotenv
 from auth import authenticate_user, create_access_token, get_password_hash
 from pdf_parser import process_and_store_pdf_content
 from models import DosageDocument, Doctor, Prescription
@@ -9,7 +10,7 @@ from query_handler import get_dosage_info
 from schemas import DoctorCreate
 
 app = FastAPI()
-
+load_dotenv()
 def get_db():
     db = SessionLocal()
     try:
