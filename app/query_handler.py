@@ -1,4 +1,4 @@
-from langchain import RetrievalQA
+from langchain.chains import RetrievalQA
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 
