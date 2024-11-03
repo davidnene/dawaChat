@@ -1,15 +1,20 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status, APIRouter, Body, Request
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dotenv import load_dotenv
-from auth import authenticate_user, create_access_token, get_password_hash
+from auth import authenticate_user, create_access_token, get_password_hash, get_current_user
 from pdf_parser import process_and_store_pdf_content
 from models import DosageDocument, Doctor, Prescription
 from db import SessionLocal, engine
 from query_handler import get_dosage_info
-from schemas import DoctorCreate
+from schemas import DoctorCreate, LoginRequest
+from fastapi.security import OAuth2PasswordBearer
+
+
+router = APIRouter()
 
 app = FastAPI()
+
 load_dotenv()
 def get_db():
     db = SessionLocal()
@@ -17,20 +22,34 @@ def get_db():
         yield db
     finally:
         db.close()
+# Store the session in the app state
+@app.on_event("startup")
+async def startup_event():
+    app.state.db = SessionLocal()
 
-@app.post("/create-doctor/")
-def create_doctor(
+@app.on_event("shutdown")
+async def shutdown_event():
+    app.state.db.close()
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+@app.post("/create-doctor/", status_code=status.HTTP_201_CREATED)
+async def create_doctor(
     doctor: DoctorCreate,
-    db: Session = Depends(get_db),
-    current_user: Doctor = Depends(authenticate_user)
+    token: str = Depends(oauth2_scheme),  # This will extract the token from the request
+    db: Session = Depends(get_db)
 ):
+    # Verify the token and get the current user
+    current_user = get_current_user(token, db)  
+    
     # Check if the current user is a super admin
     if current_user.role != "super_admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to create doctor accounts")
 
     # Check if the email is already taken
     if db.query(Doctor).filter(Doctor.email == doctor.email).first():
-        raise HTTPException(status_code=400, detail="Email is already in use")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email is already in use")
 
     # Create a new doctor account
     hashed_password = get_password_hash(doctor.password)
@@ -46,8 +65,9 @@ def create_doctor(
     db.commit()
     db.refresh(new_doctor)
 
-    return {"message": f"Doctor {new_doctor.name} created successfully."}
+    return {"message": f"Doctor {new_doctor.name} created successfully.", "doctor_id": new_doctor.id}
 
+app.include_router(router)
 @app.post("/upload-dosage-pdf/")
 def upload_dosage_pdf(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
     
@@ -97,10 +117,14 @@ def create_prescription(patient_id: int, medication: str, dosage: str, frequency
     db.commit()
     return {"message": "Prescription created successfully"}
 
+# Define your Pydantic model for the login request
+
+
 @app.post("/login")
-def login(email: str, password: str, db: Session = Depends(get_db)):
-    user = authenticate_user(email, password, db)
+def login(login_request: LoginRequest, db: Session = Depends(get_db)):
+    user = authenticate_user(login_request.email, login_request.password, db)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     token = create_access_token(data={"sub": user.email, "role": user.role})
     return {"access_token": token, "token_type": "bearer"}
+
