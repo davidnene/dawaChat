@@ -3,6 +3,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from models import Doctor
+from sqlalchemy.orm import Session
 
 SECRET_KEY = "aiplanettask1234"
 ALGORITHM = "HS256"
@@ -27,3 +28,23 @@ def authenticate_user(email: str, password: str, db_session):
     if doctor and verify_password(password, doctor.hashed_password):
         return doctor
     return None
+
+
+def get_current_user(token: str , db: Session):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])  # Use your secret key
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        user = db.query(Doctor).filter(Doctor.email == email).first()  # Fetch user from DB
+        if user is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    return user
+
