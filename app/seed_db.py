@@ -55,4 +55,6 @@ def seed_database():
     print("Database seeded with super admin and doctors.")
 
 if __name__ == "__main__":
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
     seed_database()
