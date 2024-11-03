@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from auth import authenticate_user, create_access_token, get_password_hash, get_current_user
 from pdf_parser import process_and_store_pdf_content
 from models import DosageDocument, Doctor, Prescription
-from db import SessionLocal, engine
+from db import SessionLocal
 from query_handler import get_dosage_info
 from schemas import DoctorCreate, LoginRequest
 from fastapi.security import OAuth2PasswordBearer
@@ -22,6 +22,7 @@ def get_db():
         yield db
     finally:
         db.close()
+        
 # Store the session in the app state
 @app.on_event("startup")
 async def startup_event():
@@ -116,8 +117,6 @@ def create_prescription(patient_id: int, medication: str, dosage: str, frequency
     db.add(prescription)
     db.commit()
     return {"message": "Prescription created successfully"}
-
-# Define your Pydantic model for the login request
 
 
 @app.post("/login")
