@@ -9,11 +9,27 @@ from db import SessionLocal
 from query_handler import get_dosage_info
 from schemas import DoctorCreate, LoginRequest
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
 
 
 router = APIRouter()
 
 app = FastAPI()
+
+# Define origins that are allowed to make requests
+origins = [
+    "http://localhost:3000"
+
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
+
 
 load_dotenv()
 def get_db():
@@ -38,7 +54,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 @app.post("/api/create-doctor/", status_code=status.HTTP_201_CREATED)
 async def create_doctor(
     doctor: DoctorCreate,
-    token: str = Depends(oauth2_scheme),  # This will extract the token from the request
+    token: str = Depends(oauth2_scheme), 
     db: Session = Depends(get_db)
 ):
     # Verify the token and get the current user
