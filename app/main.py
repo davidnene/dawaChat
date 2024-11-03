@@ -35,7 +35,7 @@ async def shutdown_event():
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-@app.post("/create-doctor/", status_code=status.HTTP_201_CREATED)
+@app.post("/api/create-doctor/", status_code=status.HTTP_201_CREATED)
 async def create_doctor(
     doctor: DoctorCreate,
     token: str = Depends(oauth2_scheme),  # This will extract the token from the request
@@ -67,9 +67,9 @@ async def create_doctor(
     db.refresh(new_doctor)
 
     return {"message": f"Doctor {new_doctor.name} created successfully.", "doctor_id": new_doctor.id}
-
 app.include_router(router)
-@app.post("/upload-dosage-pdf/")
+
+@app.post("/api/upload-dosage-pdf/")
 def upload_dosage_pdf(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
     
     # Check if the current user is a super admin
@@ -88,7 +88,7 @@ def upload_dosage_pdf(file: UploadFile = File(...), db: Session = Depends(get_db
     db.commit()
     return {"message": "Dosage PDF uploaded successfully"}
 
-@app.get("/query-dosage/")
+@app.get("/api/query-dosage/")
 def query_dosage(query: str, db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
     # Ensure the user is authenticated as a doctor
     if not current_user:
@@ -103,7 +103,7 @@ def query_dosage(query: str, db: Session = Depends(get_db), current_user: Doctor
     response = get_dosage_info(query)
     return {"response": response}
 
-@app.post("/prescribe/")
+@app.post("/api/prescribe/")
 def create_prescription(patient_id: int, medication: str, dosage: str, frequency: str, notes: str, db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
     prescription = Prescription(
         patient_id=patient_id,
@@ -119,7 +119,7 @@ def create_prescription(patient_id: int, medication: str, dosage: str, frequency
     return {"message": "Prescription created successfully"}
 
 
-@app.post("/login")
+@app.post("/api/login")
 def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     user = authenticate_user(login_request.email, login_request.password, db)
     if not user:
