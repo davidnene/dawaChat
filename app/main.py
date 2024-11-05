@@ -109,7 +109,7 @@ def upload_dosage_pdf(file: UploadFile = File(...),
     
     # Parse and save to database
     process_and_store_pdf_content(file_path)
-    dosage_document = DosageDocument(title=file.filename, content=file_path, uploaded_by=current_user.name)
+    dosage_document = DosageDocument(title=file.filename, content=file_path, uploaded_by=current_user.id)
     db.add(dosage_document)
     db.commit()
     return {"message": "Dosage PDF uploaded successfully"}
