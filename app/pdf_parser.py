@@ -30,6 +30,6 @@ def process_and_store_pdf_content(file_path: str):
     # Save the vector store to disk for later retrieval
     vector_store.save_local("faiss_dosage_index")
 
-file_path="data/Kenya_National_Medicines_Formulary_2023_1st_Edition.pdf"
-process_and_store_pdf_content(file_path)
-print("processed")
+# file_path="data/Kenya_National_Medicines_Formulary_2023_1st_Edition.pdf"
+# process_and_store_pdf_content(file_path)
+# print("processed")
