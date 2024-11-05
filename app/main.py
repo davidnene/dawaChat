@@ -10,6 +10,7 @@ from query_handler import get_dosage_info
 from schemas import DoctorCreate, LoginRequest
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 
 router = APIRouter()
@@ -86,14 +87,23 @@ async def create_doctor(
 app.include_router(router)
 
 @app.post("/api/upload-dosage-pdf/")
-def upload_dosage_pdf(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
+def upload_dosage_pdf(file: UploadFile = File(...), 
+                      db: Session = Depends(get_db), 
+                      token: str = Depends(oauth2_scheme)):
+    
+    # Verify the token and get the current user
+    current_user = get_current_user(token, db)
     
     # Check if the current user is a super admin
     if current_user.role != "super_admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to upload documents")
 
-    # Save file temporarily and parse
-    file_path = f"/tmp/{file.filename}"
+     # Ensure /tmp directory exists
+    tmp_dir = "/app/tmp"
+    os.makedirs(tmp_dir, exist_ok=True)
+
+    # Save file temporarily
+    file_path = os.path.join(tmp_dir, file.filename)
     with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())
     
