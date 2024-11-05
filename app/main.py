@@ -7,7 +7,7 @@ from pdf_parser import process_and_store_pdf_content
 from models import DosageDocument, Doctor, Prescription
 from db import SessionLocal
 from query_handler import get_dosage_info
-from schemas import DoctorCreate, LoginRequest
+from schemas import DoctorCreate, LoginRequest, QueryDosageRequest
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -109,14 +109,20 @@ def upload_dosage_pdf(file: UploadFile = File(...),
     
     # Parse and save to database
     process_and_store_pdf_content(file_path)
-    dosage_document = DosageDocument(title=file.filename, content=file_path, uploaded_by=current_user.id)
+    dosage_document = DosageDocument(title=file.filename, content=file_path, uploaded_by=current_user.name)
     db.add(dosage_document)
     db.commit()
     return {"message": "Dosage PDF uploaded successfully"}
 
-@app.get("/api/query-dosage/")
-def query_dosage(query: str, db: Session = Depends(get_db), current_user: Doctor = Depends(authenticate_user)):
-    # Ensure the user is authenticated as a doctor
+@app.post("/api/query-dosage/")
+def query_dosage(
+    request: QueryDosageRequest,  
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme)
+):
+    # Verify the token and get the current user
+    current_user = get_current_user(token, db)
+    
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized access")
 
@@ -126,7 +132,7 @@ def query_dosage(query: str, db: Session = Depends(get_db), current_user: Doctor
         raise HTTPException(status_code=404, detail="No dosage document found")
 
     # Perform the query using the FAISS index loaded in get_dosage_info
-    response = get_dosage_info(query)
+    response = get_dosage_info(request.query)  
     return {"response": response}
 
 @app.post("/api/prescribe/")
