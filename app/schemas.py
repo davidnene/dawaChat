@@ -8,3 +8,6 @@ class DoctorCreate(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+    
+class QueryDosageRequest(BaseModel):
+    query: str
