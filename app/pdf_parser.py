@@ -4,11 +4,15 @@ from langchain.text_splitter import CharacterTextSplitter
 import fitz  
 
 def read_pdf(file_path: str) -> str:
-    doc = fitz.open(file_path)
-    pdf_text = ""
-    for page in doc:
-        pdf_text += page.get_text()
-    return pdf_text
+    try:
+        doc = fitz.Document(file_path)
+        pdf_text = ""
+        for page in doc:
+            pdf_text += page.get_text()
+        return pdf_text
+    except Exception as e:
+        print("Error reading PDF:", e)
+        return ""
 
 def process_and_store_pdf_content(file_path: str):
     # Read PDF content
