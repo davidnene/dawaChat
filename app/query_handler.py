@@ -1,5 +1,3 @@
-from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -26,7 +24,6 @@ def get_dosage_info(query: str):
     # # Run the query
     # response = qa.run(query)
     
-    
     retriever = vector_store.as_retriever()
     retriever.search_kwargs = {"k": 20}  # Limit retrieval to top 5 documents
 
@@ -43,5 +40,4 @@ def get_dosage_info(query: str):
     # Run the query with the LLM
     response = llm.invoke([{"role": "user", "content": prompt}])
     
-
     return response
