@@ -1,6 +1,6 @@
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain.text_splitter import CharacterTextSplitter, TokenTextSplitter
+from langchain.text_splitter import TokenTextSplitter
 import pdfplumber
 
 def read_pdf(file_path: str) -> str:

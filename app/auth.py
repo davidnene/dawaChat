@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
@@ -37,11 +37,11 @@ def get_current_user(token: str , db: Session):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])  # Use your secret key
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) 
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-        user = db.query(Doctor).filter(Doctor.email == email).first()  # Fetch user from DB
+        user = db.query(Doctor).filter(Doctor.email == email).first()
         if user is None:
             raise credentials_exception
     except JWTError:

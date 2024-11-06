@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status, APIRouter, Body, Request
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status, APIRouter
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dotenv import load_dotenv
