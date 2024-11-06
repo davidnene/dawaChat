@@ -19,11 +19,13 @@ The Dawa Chat project aims to leverage the power of Large Language Models (LLMs)
 ## Technology Stack
 
 ### System Architecture
-<img src="app/static/image.png" alt="System Architecture Diagram" width="500">
+<img src="app/static/system_architecture.png" alt="System Architecture Diagram" width="500">
 
 ### Backend
 - **Framework**: FastAPI
 - **Database**: PostgreSQL (Data normalization)
+### ERD Diagram
+<img src="app/static/ERD.png" alt="ERD Diagram" width="500">
 
 ### Frontend
 - **Framework**: ReactJS
