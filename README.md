@@ -27,6 +27,16 @@ The Dawa Chat project aims to leverage the power of Large Language Models (LLMs)
 ### ERD Diagram
 <img src="app/static/ERD.png" alt="ERD Diagram" width="500">
 
+### Design Diagrams
+#### Home page
+<img src="app/static/design_diagrams/home_page.png" alt="Home Page" width="500">
+
+#### Login page
+<img src="app/static/design_diagrams/login_page.png" alt="Login Page" width="500">
+
+#### Dosage Query page
+<img src="app/static/design_diagrams/dosage_query.png" alt="Dosage Query Page" width="500">
+
 ### Frontend
 - **Framework**: ReactJS
 - **Styling**: Bootstrap and Material UI
@@ -54,10 +64,6 @@ The Dawa Chat project aims to leverage the power of Large Language Models (LLMs)
 
 - **Containerization**: Docker for containerizing the application.
 - **Orchestration**: Kubernetes for managing containerized applications.
-
-## Data Model
-
-- **Entity-Relationship Diagram (ERD)**: [Include link or image of ERD here]
   
 ## Query Agent
 - **Chat Model**: ChatOpenAI for generating responses based on user queries.
