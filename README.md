@@ -17,6 +17,8 @@ The Dawa Chat project aims to leverage the power of Large Language Models (LLMs)
   - Reduce medication errors (MEs) and enhance patient safety in Kenya by providing reliable and timely prescription information.
 
 ## Technology Stack
+- Frontend Github [link](https://github.com/davidnene/dawachat_frontend)
+- Backend Github [link](https://github.com/davidnene/dawaChat)
 
 ### System Architecture
 <img src="app/static/system_architecture.png" alt="System Architecture Diagram" width="500">
@@ -37,7 +39,7 @@ The Dawa Chat project aims to leverage the power of Large Language Models (LLMs)
 #### Dosage Query page
 <img src="app/static/design_diagrams/dosage_query.png" alt="Dosage Query Page" width="500">
 
-### Frontend
+### [Frontend](https://github.com/davidnene/dawachat_frontend)
 - **Framework**: ReactJS
 - **Styling**: Bootstrap and Material UI
 
@@ -68,6 +70,49 @@ The Dawa Chat project aims to leverage the power of Large Language Models (LLMs)
 ## Query Agent
 - **Chat Model**: ChatOpenAI for generating responses based on user queries.
 
+## Setup Guide 
+### Backend setup
+```bash
+# Clone backend repo and enter into the directory
+git clone https://github.com/davidnene/dawaChat
+cd dawaChat
+
+# create a virtual environment and activate it
+python -m venv .venv
+. .venv/scripts/activate
+
+# create a .env file and add the following
+# ensure your postgres db is set up first
+OPENAI_API_KEY='openai_key'
+DB_USER=postgres
+DB_PASSWORD=root
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=dawachat
+
+# Install requirements
+pip install -r requirements.txt
+```
+
+### Frontend setup
+```bash
+git clone https://github.com/davidnene/dawachat_frontend
+cd dawachat_frontend
+npm install
+
+# Create a .env file and add the following
+REACT_APP_BACKEND_BASE_URL=http://localhost:8000
+```
+### Docker compose setup
+```bash
+# Go back to the bakend repo
+# Ensure you have docker active
+docker-compose up --build
+
+# open your browser and acess the server
+http://localhost:3000
+
+```
 ## Expected Outcomes
 - Enhanced prescription information retrieval from the KNMF.
 - Improved accessibility and accuracy of medication-related data.
