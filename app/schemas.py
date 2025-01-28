@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime
 
-
 # Hospital Schemas
 class HospitalBase(BaseModel):
     name: str
@@ -12,13 +11,19 @@ class HospitalBase(BaseModel):
 class HospitalCreate(HospitalBase):
     pass
 
+
+class HospitalUpdate(HospitalBase):
+    """Schema for updating hospital details."""
+    name: Optional[str] = None
+    location: Optional[str] = None
+
+
 class HospitalOut(HospitalBase):
     id: int
 
     class Config:
-        orm_mode = True  # This tells Pydantic to work with SQLAlchemy models
-        
-        
+        orm_mode = True
+
 
 class Hospital(HospitalBase):
     id: int
@@ -39,6 +44,13 @@ class AdminCreate(AdminBase):
     password: str
 
 
+class AdminUpdate(AdminBase):
+    """Schema for updating admin details."""
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+
+
 class Admin(AdminBase):
     id: int
     hospital_id: int
@@ -47,12 +59,14 @@ class Admin(AdminBase):
     class Config:
         orm_mode = True
 
+
 class AdminOut(AdminBase):
     id: int
 
     class Config:
         orm_mode = True
-        
+
+
 # Doctor Schemas
 class DoctorBase(BaseModel):
     name: str
@@ -63,10 +77,17 @@ class DoctorCreate(DoctorBase):
     password: str
 
 
+class DoctorUpdate(DoctorBase):
+    """Schema for updating doctor details."""
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+
+
 class Doctor(DoctorBase):
     id: int
     hospital_id: int
-    hospital: Hospital  # Hospital details that the doctor belongs to
+    hospital: Hospital 
     prescriptions: List["Prescription"] = []  # Prescriptions linked to the doctor
 
     class Config:
@@ -81,6 +102,12 @@ class PatientBase(BaseModel):
 
 class PatientCreate(PatientBase):
     pass
+
+
+class PatientUpdate(PatientBase):
+    """Schema for updating patient details."""
+    name: Optional[str] = None 
+    email: Optional[EmailStr] = None
 
 
 class Patient(PatientBase):
@@ -107,6 +134,14 @@ class PrescriptionCreate(PrescriptionBase):
     pass
 
 
+class PrescriptionUpdate(PrescriptionBase):
+    """Schema for updating prescription details."""
+    medication: Optional[str] = None
+    dosage: Optional[str] = None
+    frequency: Optional[str] = None
+    notes: Optional[str] = None
+
+
 class Prescription(PrescriptionBase):
     id: int
     timestamp: datetime
@@ -123,6 +158,12 @@ class DosageDocumentBase(BaseModel):
 
 class DosageDocumentCreate(DosageDocumentBase):
     pass
+
+
+class DosageDocumentUpdate(DosageDocumentBase):
+    """Schema for updating dosage document details."""
+    title: Optional[str] = None
+    content: Optional[str] = None
 
 
 class DosageDocument(DosageDocumentBase):
