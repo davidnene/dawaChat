@@ -5,11 +5,31 @@ from datetime import datetime
 
 class Hospital(Base):
     __tablename__ = "hospitals"
+
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, nullable=False)
+    name = Column(String, nullable=False, unique=True)
     location = Column(String, nullable=False)
-    admins = relationship("Admin", back_populates="hospital")
-    doctors = relationship("Doctor", back_populates="hospital")
+
+    admins = relationship(
+        "Admin",
+        back_populates="hospital",
+        cascade="all, delete-orphan",  # Enable cascade delete
+        passive_deletes=True
+    )
+    doctors = relationship(
+        "Doctor",
+        back_populates="hospital",
+        cascade="all, delete-orphan", 
+        passive_deletes=True
+    )
+    
+    patients = relationship(
+        "Patient",
+        back_populates="hospital",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
 
 class Admin(Base):
     __tablename__ = "admins"
@@ -18,7 +38,7 @@ class Admin(Base):
     email = Column(String, unique=True, nullable=False)
     role = Column(String, nullable=False) 
     hashed_password = Column(String, nullable=False)
-    hospital_id = Column(Integer, ForeignKey("hospitals.id"))
+    hospital_id = Column(Integer, ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False)
     hospital = relationship("Hospital", back_populates="admins")
     
 
@@ -28,7 +48,7 @@ class Doctor(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    hospital_id = Column(Integer, ForeignKey("hospitals.id"))
+    hospital_id = Column(Integer, ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False)
     hospital = relationship("Hospital", back_populates="doctors")
     prescriptions = relationship("Prescription", back_populates="doctor")
 
@@ -37,7 +57,7 @@ class Patient(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    hospital_id = Column(Integer, ForeignKey("hospitals.id"))
+    hospital_id = Column(Integer, ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False)
     hospital = relationship("Hospital")
     prescriptions = relationship("Prescription", back_populates="patient")
 
