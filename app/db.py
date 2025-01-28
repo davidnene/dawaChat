@@ -6,11 +6,23 @@ import os
 
 Base = declarative_base()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 # Load environment variables from .env file
 load_dotenv()
 
+user = os.getenv('POSTGRES_USER')
+password = os.getenv('POSTGRES_PASSWORD')
+host = os.getenv('POSTGRES_HOST')
+port = os.getenv('POSTGRES_PORT')
+database_name = os.getenv('POSTGRES_DB')
+
 # Construct the database URL using environment variables
-DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+DATABASE_URL = f"postgresql://{user}:{password}@{host}:{port}/{database_name}"
 
 # Set up the engine and session
 engine = create_engine(DATABASE_URL)
