@@ -38,6 +38,7 @@ class Hospital(HospitalBase):
 class AdminBase(BaseModel):
     name: str
     email: EmailStr
+    role: str
 
 
 class AdminCreate(AdminBase):
@@ -48,13 +49,14 @@ class AdminUpdate(AdminBase):
     """Schema for updating admin details."""
     name: Optional[str] = None
     email: Optional[EmailStr] = None
+    role: Optional[str] = None
     password: Optional[str] = None
 
 
 class Admin(AdminBase):
     id: int
     hospital_id: int
-    hospital: Hospital  # This will include the hospital's details
+    hospital: Hospital
 
     class Config:
         orm_mode = True
@@ -62,6 +64,7 @@ class Admin(AdminBase):
 
 class AdminOut(AdminBase):
     id: int
+    hospital_name: str
 
     class Config:
         orm_mode = True
@@ -71,6 +74,7 @@ class AdminOut(AdminBase):
 class DoctorBase(BaseModel):
     name: str
     email: EmailStr
+    specialty: str
 
 
 class DoctorCreate(DoctorBase):
@@ -81,8 +85,14 @@ class DoctorUpdate(DoctorBase):
     """Schema for updating doctor details."""
     name: Optional[str] = None
     email: Optional[EmailStr] = None
+    specialty: Optional[str] = None
     password: Optional[str] = None
 
+class DoctorOut(DoctorBase):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 class Doctor(DoctorBase):
     id: int
@@ -109,7 +119,11 @@ class PatientUpdate(PatientBase):
     name: Optional[str] = None 
     email: Optional[EmailStr] = None
 
+class PatientOut(PatientBase):
+    id: int
 
+    class Config:
+        orm_mode = True
 class Patient(PatientBase):
     id: int
     hospital_id: int
