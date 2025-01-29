@@ -27,9 +27,10 @@ async def create_doctor(
     new_doctor = Doctor(
         name=doctor.name,
         email=doctor.email,
+        role=doctor.role,
         specialty=doctor.specialty,
         hospital_id=current_user.hospital_id,
-        password_hash=hashed_password
+        hashed_password=hashed_password
     )
     db.add(new_doctor)
     db.commit()
