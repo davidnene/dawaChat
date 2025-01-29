@@ -13,7 +13,6 @@ router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-
 # 1. Create a Doctor (Admin only for their hospital)
 @router.post("/api/create-doctor/", response_model=DoctorOut, status_code=status.HTTP_201_CREATED)
 async def create_doctor(
@@ -24,18 +23,19 @@ async def create_doctor(
     current_user = get_current_user(token, db)
     verify_role(current_user, "admin")
     
+    hashed_password = get_password_hash(doctor.password)
     new_doctor = Doctor(
         name=doctor.name,
         email=doctor.email,
         specialty=doctor.specialty,
-        hospital_id=current_user.hospital_id
+        hospital_id=current_user.hospital_id,
+        password_hash=hashed_password
     )
     db.add(new_doctor)
     db.commit()
     db.refresh(new_doctor)
     
     return DoctorOut(id=new_doctor.id, name=new_doctor.name, email=new_doctor.email, specialty=new_doctor.specialty)
-
 
 # 2. List Doctors in Admin's Hospital
 @router.get("/api/doctors/", response_model=List[DoctorOut])
@@ -48,7 +48,6 @@ async def get_doctors(
     
     doctors = db.query(Doctor).filter(Doctor.hospital_id == current_user.hospital_id).all()
     return [DoctorOut(id=d.id, name=d.name, email=d.email, specialty=d.specialty) for d in doctors]
-
 
 # 3. Update a Doctor (Admin only for their hospital)
 @router.put("/api/update-doctor/{doctor_id}", response_model=DoctorOut)
@@ -68,11 +67,12 @@ async def update_doctor(
     existing_doctor.name = doctor.name or existing_doctor.name
     existing_doctor.email = doctor.email or existing_doctor.email
     existing_doctor.specialty = doctor.specialty or existing_doctor.specialty
+    if doctor.password:
+        existing_doctor.password_hash = get_password_hash(doctor.password)
     db.commit()
     db.refresh(existing_doctor)
     
     return DoctorOut(id=existing_doctor.id, name=existing_doctor.name, email=existing_doctor.email, specialty=existing_doctor.specialty)
-
 
 # 4. Delete a Doctor (Admin only for their hospital)
 @router.delete("/api/delete-doctor/{doctor_id}", status_code=status.HTTP_204_NO_CONTENT)
