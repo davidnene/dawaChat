@@ -107,14 +107,13 @@ async def create_patient(
     new_patient = Patient(
         name=patient.name,
         email=patient.email,
-        age=patient.age,
         hospital_id=current_user.hospital_id
     )
     db.add(new_patient)
     db.commit()
     db.refresh(new_patient)
     
-    return PatientOut(id=new_patient.id, name=new_patient.name, email=new_patient.email, age=new_patient.age)
+    return PatientOut(id=new_patient.id, name=new_patient.name, email=new_patient.email)
 
 
 # 6. List Patients in Admin's Hospital
@@ -127,7 +126,7 @@ async def get_patients(
     verify_role(current_user, "admin")
     
     patients = db.query(Patient).filter(Patient.hospital_id == current_user.hospital_id).all()
-    return [PatientOut(id=p.id, name=p.name, email=p.email, age=p.age) for p in patients]
+    return [PatientOut(id=p.id, name=p.name, email=p.email) for p in patients]
 
 
 # 7. Update a Patient (Admin only for their hospital)
@@ -147,11 +146,10 @@ async def update_patient(
     
     existing_patient.name = patient.name or existing_patient.name
     existing_patient.email = patient.email or existing_patient.email
-    existing_patient.age = patient.age or existing_patient.age
     db.commit()
     db.refresh(existing_patient)
     
-    return PatientOut(id=existing_patient.id, name=existing_patient.name, email=existing_patient.email, age=existing_patient.age)
+    return PatientOut(id=existing_patient.id, name=existing_patient.name, email=existing_patient.email)
 
 
 # 8. Delete a Patient (Admin only for their hospital)
