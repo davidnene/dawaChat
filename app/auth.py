@@ -42,7 +42,6 @@ def get_current_user(token: str, db: Session, role: Union[str, None] = None):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
-        print(email)
         if email is None:
             raise credentials_exception
         # Checking if the user exists in multiple roles (Doctor, Admin, etc.)
