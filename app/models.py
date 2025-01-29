@@ -48,6 +48,7 @@ class Doctor(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     specialty = Column(String)
+    role = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
     hospital_id = Column(Integer, ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False)
     hospital = relationship("Hospital", back_populates="doctors")
