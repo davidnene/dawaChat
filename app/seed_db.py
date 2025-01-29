@@ -60,6 +60,7 @@ def seed_database():
         name="Dr. Rose Ochieng",
         email="rose@dawachat.ai",
         role="doctor",
+        specialty="gyno",
         hashed_password=get_password_hash("doctorpassword1"),
         hospital_id=1,  # Assigning hospital1
     )
@@ -67,6 +68,7 @@ def seed_database():
         name="Dr. Idris Omollo",
         email="idris@dawachat.ai",
         role="doctor",
+        specialty="clinician",
         hashed_password=get_password_hash("doctorpassword2"),
         hospital_id=2,  # Assigning hospital2
     )
@@ -74,6 +76,7 @@ def seed_database():
         name="Dr. Enock Omwami",
         email="enock@dawachat.ai",
         role="doctor",
+        specialty="nurse",
         hashed_password=get_password_hash("doctorpassword3"),
         hospital_id=1,  # Assigning hospital1
     )
