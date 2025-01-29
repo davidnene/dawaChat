@@ -79,6 +79,7 @@ class DoctorBase(BaseModel):
 
 class DoctorCreate(DoctorBase):
     password: str
+    role: str
 
 
 class DoctorUpdate(DoctorBase):
