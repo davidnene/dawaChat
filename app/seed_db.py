@@ -59,18 +59,21 @@ def seed_database():
     doctor1 = Doctor(
         name="Dr. Rose Ochieng",
         email="rose@dawachat.ai",
+        role="doctor",
         hashed_password=get_password_hash("doctorpassword1"),
         hospital_id=1,  # Assigning hospital1
     )
     doctor2 = Doctor(
         name="Dr. Idris Omollo",
         email="idris@dawachat.ai",
+        role="doctor",
         hashed_password=get_password_hash("doctorpassword2"),
         hospital_id=2,  # Assigning hospital2
     )
     doctor3 = Doctor(
         name="Dr. Enock Omwami",
         email="enock@dawachat.ai",
+        role="doctor",
         hashed_password=get_password_hash("doctorpassword3"),
         hospital_id=1,  # Assigning hospital1
     )
