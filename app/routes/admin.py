@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from models import Doctor, Patient, Admin
-from schemas import DoctorCreate, DoctorUpdate, PatientCreate, PatientUpdate, DoctorOut, PatientOut
+from schemas import DoctorCreate, DoctorUpdate, PatientCreate, PatientUpdate, DoctorOut, PatientOut, PrescriptionOut
 from utils.rbac import verify_role
 from db import get_db
 from auth import get_current_user
