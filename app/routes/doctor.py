@@ -13,26 +13,32 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # 1. Create a Prescription (Doctor only for their hospital's patients)
-@router.post("/api/prescriptions/", response_model=PrescriptionOut, status_code=status.HTTP_201_CREATED)
+@router.post("/api/create-prescription/", response_model=PrescriptionOut, status_code=status.HTTP_201_CREATED)
 async def create_prescription(
     prescription: PrescriptionCreate,
+    patient_id: int,
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
     current_user = get_current_user(token, db)
     verify_role(current_user, "doctor")
     
-    patient = db.query(Patient).filter(Patient.id == prescription.patient_id, Patient.hospital_id == current_user.hospital_id).first()
+    patient = db.query(Patient).filter(Patient.id == patient_id, Patient.hospital_id == current_user.hospital_id).first()
     if not patient:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found or does not belong to your hospital")
     
     new_prescription = Prescription(
-        doctor_id=current_user.id,
-        patient_id=prescription.patient_id,
-        medication=prescription.medication,
-        dosage=prescription.dosage,
-        instructions=prescription.instructions
+    doctor_id=current_user.id,
+    patient_id=patient.id,
+    medication=prescription.medication,
+    dosage=prescription.dosage,
+    observations=prescription.observations,
+    diagnosis=prescription.diagnosis,
+    diseases_type=prescription.diseases_type,
+    treatment_plan=prescription.treatment_plan,
+    doctor_notes=prescription.doctor_notes
     )
+
     db.add(new_prescription)
     db.commit()
     db.refresh(new_prescription)
