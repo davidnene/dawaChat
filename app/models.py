@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Enum
 from sqlalchemy.orm import relationship
 from db import Base
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum as pyEnum
 
 class Hospital(Base):
@@ -74,17 +74,15 @@ class Prescription(Base):
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
-    
     medication = Column(String, nullable=False)
     dosage = Column(String, nullable=False)
-  
     observations = Column(Text, nullable=True)
     diagnosis = Column(Text, nullable=False)
     diseases_type = Column(Enum(DiseaseTypeEnum, name=("disease_type_enum")))
     treatment_plan = Column(Text, nullable=True)
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    doctor_notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     
     doctor = relationship("Doctor")
     patient = relationship("Patient")
