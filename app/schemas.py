@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime
+from enum import Enum 
 
 # Hospital Schemas
 class HospitalBase(BaseModel):
@@ -125,6 +126,7 @@ class PatientOut(PatientBase):
 
     class Config:
         orm_mode = True
+        
 class Patient(PatientBase):
     id: int
     hospital_id: int
@@ -135,36 +137,52 @@ class Patient(PatientBase):
         orm_mode = True
 
 
-# Prescription Schemas
+# Enum for disease type
+class DiseaseTypeEnum(str, Enum):
+    COMMUNICABLE = "communicable"
+    NON_COMMUNICABLE = "non_communicable"
+
+# Base schema for Prescription
 class PrescriptionBase(BaseModel):
-    patient_id: int
-    doctor_id: int
     medication: str
     dosage: str
-    frequency: str
-    notes: Optional[str] = None
+    observations: Optional[str] = None
+    diagnosis: str
+    diseases_type: DiseaseTypeEnum
+    treatment_plan: Optional[str] = None
 
-
+# Schema for creating a prescription
 class PrescriptionCreate(PrescriptionBase):
     pass
 
-
-class PrescriptionUpdate(PrescriptionBase):
-    """Schema for updating prescription details."""
+# Schema for updating a prescription
+class PrescriptionUpdate(BaseModel):
     medication: Optional[str] = None
     dosage: Optional[str] = None
-    frequency: Optional[str] = None
-    notes: Optional[str] = None
+    observations: Optional[str] = None
+    diagnosis: Optional[str] = None
+    diseases_type: Optional[DiseaseTypeEnum] = None
+    treatment_plan: Optional[str] = None
 
-
-class Prescription(PrescriptionBase):
+# Schema for response output
+class PrescriptionOut(PrescriptionBase):
     id: int
-    timestamp: datetime
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
 
-
+class Prescription(PrescriptionBase):
+    id: int
+    patient_id: int
+    patient: Patient
+    doctor_id: int
+    doctor: Doctor
+    
+    class Config:
+        orm_mode = True
+    
 # Dosage Document Schemas
 class DosageDocumentBase(BaseModel):
     title: str
