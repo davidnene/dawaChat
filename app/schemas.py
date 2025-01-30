@@ -150,6 +150,7 @@ class PrescriptionBase(BaseModel):
     diagnosis: str
     diseases_type: DiseaseTypeEnum
     treatment_plan: Optional[str] = None
+    doctor_notes: Optional[str] = None
 
 # Schema for creating a prescription
 class PrescriptionCreate(PrescriptionBase):
