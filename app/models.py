@@ -85,6 +85,9 @@ class Prescription(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    doctor = relationship("Doctor")
+    patient = relationship("Patient")
 
 class DosageDocument(Base):
     __tablename__ = "dosage_documents"
