@@ -14,7 +14,7 @@ router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# 1. Create a Prescription (Doctor only for their hospital's patients)
+# Create a Prescription (Doctor only for their hospital's patients)
 @router.post("/api/create-prescription/", response_model=PrescriptionOut, status_code=status.HTTP_201_CREATED)
 async def create_prescription(
     prescription: PrescriptionCreate,
@@ -47,7 +47,7 @@ async def create_prescription(
     
     return new_prescription
 
-# 2. Get Prescriptions for a Specific Patient
+# Get Prescriptions for a Specific Patient
 @router.get("/api/prescriptions/{patient_id}", response_model=List[PrescriptionOut])
 async def get_prescriptions(
     patient_id: int,
@@ -62,6 +62,7 @@ async def get_prescriptions(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found or does not belong to your hospital")
     
     prescriptions = db.query(Prescription).filter(Prescription.patient_id == patient_id).all()
+    
     # Serialize the prescriptions, explicitly including hospital info for patient and doctor
     return [
         {
@@ -78,7 +79,7 @@ async def get_prescriptions(
         for pr in prescriptions
     ]
 
-# 3. Update a Prescription
+# Update a Prescription
 @router.put("/api/update-prescription/{prescription_id}", response_model=PrescriptionOut)
 async def update_prescription(
     prescription_id: int,
@@ -95,12 +96,23 @@ async def update_prescription(
     
     existing_prescription.medication = prescription.medication or existing_prescription.medication
     existing_prescription.dosage = prescription.dosage or existing_prescription.dosage
+    existing_prescription.doctor_notes = prescription.doctor_notes or existing_prescription.doctor_notes
     db.commit()
     db.refresh(existing_prescription)
     
-    return existing_prescription
+    return {
+            **jsonable_encoder(existing_prescription),
+            "patient": {
+                **jsonable_encoder(existing_prescription.patient),
+                "hospital": jsonable_encoder(existing_prescription.patient.hospital) 
+            } if existing_prescription.patient else None,
+            "doctor": {
+                **jsonable_encoder(existing_prescription.doctor),
+                "hospital": jsonable_encoder(existing_prescription.doctor.hospital)  
+            } if existing_prescription.doctor else None
+        }
 
-# 4. Delete a Prescription
+# Delete a Prescription
 @router.delete("/api/delete-prescription/{prescription_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_prescription(
     prescription_id: int,
