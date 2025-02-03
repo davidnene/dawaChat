@@ -7,7 +7,7 @@ def get_dosage_info(query: str):
     # Load the FAISS vector store from disk
     vector_store = FAISS.load_local("faiss_dosage_index", OpenAIEmbeddings(), allow_dangerous_deserialization=True)
 
-    llm = ChatOpenAI(model="gpt-3.5-turbo")
+    llm = ChatOpenAI(model="gpt-4o")
 
     
     retriever = vector_store.as_retriever()
