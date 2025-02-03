@@ -1,20 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
-from models import Doctor, Patient, Admin
-from schemas import DoctorCreate, DoctorUpdate, PatientCreate, PatientUpdate, DoctorOut, PatientOut, PrescriptionOut
+from models import Doctor, Patient, Admin, Hospital, Prescription
+from schemas import DoctorCreate, DoctorUpdate, PatientCreate, PatientUpdate, PatientOut
 from utils.rbac import verify_role
 from db import get_db
 from auth import get_current_user
 from fastapi.security import OAuth2PasswordBearer
 from auth import get_password_hash
+from sqlalchemy.inspection import inspect
 
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# 1. Create a Doctor (Admin only for their hospital)
-@router.post("/api/create-doctor/", response_model=DoctorOut, status_code=status.HTTP_201_CREATED)
+def asdict(obj):
+    """Convert SQLAlchemy object to dictionary dynamically."""
+    return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
+
+# Create a Doctor (Admin only for their hospital)
+@router.post("/api/create-doctor/", status_code=status.HTTP_201_CREATED)
 async def create_doctor(
     doctor: DoctorCreate,
     token: str = Depends(oauth2_scheme),
@@ -36,10 +41,13 @@ async def create_doctor(
     db.commit()
     db.refresh(new_doctor)
     
-    return DoctorOut(id=new_doctor.id, name=new_doctor.name, email=new_doctor.email, specialty=new_doctor.specialty)
+    return {
+        **asdict(new_doctor),
+        "hospital": asdict(new_doctor.hospital) if new_doctor.hospital else None
+    }
 
-# 2. List Doctors in Admin's Hospital
-@router.get("/api/doctors/", response_model=List[DoctorOut])
+# List Doctors in Admin's Hospital
+@router.get("/api/doctors/")
 async def get_doctors(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
@@ -47,11 +55,26 @@ async def get_doctors(
     current_user = get_current_user(token, db)
     verify_role(current_user, "admin")
     
-    doctors = db.query(Doctor).filter(Doctor.hospital_id == current_user.hospital_id).all()
-    return [DoctorOut(id=d.id, name=d.name, email=d.email, specialty=d.specialty) for d in doctors]
+    doctors = (
+        db.query(Doctor)
+        .options(joinedload(Doctor.hospital))
+        .filter(Doctor.hospital_id == current_user.hospital_id)
+        .all()
+    )
+    
+    return [
+        {
+            "id": d.id,
+            "name": d.name,
+            "email": d.email,
+            "specialty": d.specialty,
+            "hospital": asdict(d.hospital) if d.hospital else None
+        }
+        for d in doctors
+    ]
 
-# 3. Update a Doctor (Admin only for their hospital)
-@router.put("/api/update-doctor/{doctor_id}", response_model=DoctorOut)
+# Update a Doctor
+@router.put("/api/update-doctor/{doctor_id}")
 async def update_doctor(
     doctor_id: int,
     doctor: DoctorUpdate,
@@ -73,9 +96,12 @@ async def update_doctor(
     db.commit()
     db.refresh(existing_doctor)
     
-    return DoctorOut(id=existing_doctor.id, name=existing_doctor.name, email=existing_doctor.email, specialty=existing_doctor.specialty)
+    return {
+        **asdict(existing_doctor),
+        "hospital": asdict(existing_doctor.hospital) if existing_doctor.hospital else None
+    }
 
-# 4. Delete a Doctor (Admin only for their hospital)
+# Delete a Doctor (Admin only for their hospital)
 @router.delete("/api/delete-doctor/{doctor_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_doctor(
     doctor_id: int,
@@ -93,8 +119,7 @@ async def delete_doctor(
     db.commit()
     return {"detail": "Doctor deleted successfully"}
 
-
-# 5. Create a Patient (Admin only for their hospital)
+# Create a Patient (Admin only for their hospital)
 @router.post("/api/create-patient/", response_model=PatientOut, status_code=status.HTTP_201_CREATED)
 async def create_patient(
     patient: PatientCreate,
@@ -113,24 +138,45 @@ async def create_patient(
     db.commit()
     db.refresh(new_patient)
     
-    return PatientOut(id=new_patient.id, name=new_patient.name, email=new_patient.email)
+    return {
+            **asdict(new_patient),
+            "hospital": asdict(new_patient.hospital) if new_patient.hospital else None,
+            # "prescriptions": [asdict(pr) for pr in p.prescriptions] if p.prescriptions and current_user.role=="doctor" else []
+        }
 
-
-# 6. List Patients in Admin's Hospital
-@router.get("/api/patients/", response_model=List[PatientOut])
+# List Patients with Prescriptions
+@router.get("/api/patients/")
 async def get_patients(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
     current_user = get_current_user(token, db)
-    verify_role(current_user, "admin")
-    
-    patients = db.query(Patient).filter(Patient.hospital_id == current_user.hospital_id).all()
-    return [PatientOut(id=p.id, name=p.name, email=p.email) for p in patients]
+    if current_user.role == "admin" or current_user.role == "doctor":
+        pass
+    else:
+         raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required role: Admin or Doctor",
+        )
 
+    patients = (
+        db.query(Patient)
+        .options(joinedload(Patient.hospital), joinedload(Patient.prescriptions))
+        .filter(Patient.hospital_id == current_user.hospital_id)
+        .all()
+    )
 
-# 7. Update a Patient (Admin only for their hospital)
-@router.put("/api/update-patient/{patient_id}", response_model=PatientOut)
+    return [
+        {
+            **asdict(p),
+            "hospital": asdict(p.hospital) if p.hospital else None,
+            "prescriptions": [asdict(pr) for pr in p.prescriptions] if p.prescriptions and current_user.role=="doctor" else []
+        }
+        for p in patients
+    ]
+
+# Update a Patient
+@router.put("/api/update-patient/{patient_id}")
 async def update_patient(
     patient_id: int,
     patient: PatientUpdate,
@@ -149,10 +195,13 @@ async def update_patient(
     db.commit()
     db.refresh(existing_patient)
     
-    return PatientOut(id=existing_patient.id, name=existing_patient.name, email=existing_patient.email)
+    return {
+        **asdict(existing_patient),
+        "hospital": asdict(existing_patient.hospital) if existing_patient.hospital else None,
+        "prescriptions": [asdict(pr) for pr in existing_patient.prescriptions] if existing_patient.prescriptions and current_user.role=="doctor" else []
+    }
 
-
-# 8. Delete a Patient (Admin only for their hospital)
+#Delete a Patient (Admin only for their hospital)
 @router.delete("/api/delete-patient/{patient_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_patient(
     patient_id: int,
