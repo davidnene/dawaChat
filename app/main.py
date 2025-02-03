@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from auth import authenticate_user, create_access_token, get_current_user
 from schemas import LoginRequest
 from db import SessionLocal
-from routes import super_admin, admin, doctor
+from routes import super_admin, admin, doctor, rag
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -36,6 +36,7 @@ app.add_middleware(
 app.include_router(super_admin.router)
 app.include_router(admin.router)
 app.include_router(doctor.router)
+app.include_router(rag.router)
 
 load_dotenv()
 
