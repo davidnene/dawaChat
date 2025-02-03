@@ -4,6 +4,7 @@ from typing import List
 from models import Doctor, Patient, Admin, Hospital, Prescription
 from schemas import DoctorCreate, DoctorUpdate, PatientCreate, PatientUpdate, PatientOut
 from utils.rbac import verify_role
+from utils.asdict import asdict
 from db import get_db
 from auth import get_current_user
 from fastapi.security import OAuth2PasswordBearer
@@ -13,10 +14,6 @@ from sqlalchemy.inspection import inspect
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-def asdict(obj):
-    """Convert SQLAlchemy object to dictionary dynamically."""
-    return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
 
 # Create a Doctor (Admin only for their hospital)
 @router.post("/api/create-doctor/", status_code=status.HTTP_201_CREATED)
