@@ -98,7 +98,7 @@ async def create_admin(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
-    current_user = get_current_user(token, db)
+    current_user = get_current_user(token, db, role="super_admin")
     verify_role(current_user, "super_admin")
 
     hospital = db.query(Hospital).filter(Hospital.id == hospital_id).first()
@@ -112,6 +112,7 @@ async def create_admin(
     new_admin = Admin(
         name=admin.name,
         email=admin.email,
+        role=admin.role,
         hashed_password=hashed_password,
         hospital_id=hospital.id
     )
@@ -119,7 +120,7 @@ async def create_admin(
     db.commit()
     db.refresh(new_admin)
 
-    return AdminOut(id=new_admin.id, name=new_admin.name, email=new_admin.email)
+    return AdminOut(id=new_admin.id, name=new_admin.name, email=new_admin.email, role=new_admin.role, hospital_name=new_admin.hospital.name)
 
 
 # 6. List All Admins
@@ -132,7 +133,7 @@ async def get_admins(
     verify_role(current_user, "super_admin")
 
     admins = db.query(Admin).all()
-    return [AdminOut(id=admin.id, name=admin.name, email=admin.email) for admin in admins]
+    return [AdminOut(id=admin.id, name=admin.name, email=admin.email, role=admin.role, hospital_name=admin.hospital.name) for admin in admins]
 
 
 # 7. Update an Admin
@@ -157,7 +158,7 @@ async def update_admin(
     db.commit()
     db.refresh(existing_admin)
 
-    return AdminOut(id=existing_admin.id, name=existing_admin.name, email=existing_admin.email)
+    return AdminOut(id=existing_admin.id, name=existing_admin.name, email=existing_admin.email, role=existing_admin.role,hospital_name=existing_admin.hospital.name)
 
 
 # 8. Delete an Admin

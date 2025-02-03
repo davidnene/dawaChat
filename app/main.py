@@ -1,16 +1,23 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status, APIRouter
+from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from auth import authenticate_user, create_access_token, get_current_user
 from schemas import LoginRequest
 from db import SessionLocal
-from routes import super_admin  # Import the super_admin router
+from routes import super_admin, admin, doctor
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.db = SessionLocal()
+    yield  # The application runs while this is active
+    app.state.db.close()
+
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://localhost:3000"
@@ -27,7 +34,8 @@ app.add_middleware(
 
 # Initialize router 
 app.include_router(super_admin.router)
-
+app.include_router(admin.router)
+app.include_router(doctor.router)
 
 load_dotenv()
 
@@ -39,14 +47,6 @@ def get_db():
     finally:
         db.close()
 
-# Store the session in the app state
-@app.on_event("startup")
-async def startup_event():
-    app.state.db = SessionLocal()
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    app.state.db.close()
 
 # OAuth2 password bearer setup
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -69,3 +69,10 @@ def super_admin_action(
     current_user = get_current_user(token, db, role="super_admin")
     
     return {"message": f"Super admin action performed by {current_user.email}"}
+
+@app.get("/")
+def read_root():
+    """
+    Root endpoint for the API.
+    """
+    return {"message": "Welcome to the DawaChat API"}

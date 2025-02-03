@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from models import Doctor, Admin, Hospital  # Example, adjust as needed for other roles
+from models import Doctor, Admin
 from sqlalchemy.orm import Session
 from typing import Union
 

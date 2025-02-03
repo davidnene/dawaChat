@@ -1,185 +1,165 @@
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime
+from enum import Enum 
 
 # Hospital Schemas
 class HospitalBase(BaseModel):
     name: str
     location: str
 
-
 class HospitalCreate(HospitalBase):
     pass
-
 
 class HospitalUpdate(HospitalBase):
     """Schema for updating hospital details."""
     name: Optional[str] = None
     location: Optional[str] = None
 
-
 class HospitalOut(HospitalBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-
-class Hospital(HospitalBase):
-    id: int
-    admins: List["Admin"] = []  # List of admins for this hospital
-    doctors: List["Doctor"] = []  # List of doctors for this hospital
+class Hospital(HospitalOut):
+    admins: List["AdminOut"] = []  
+    doctors: List["DoctorOut"] = []
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True
 
 # Admin Schemas
 class AdminBase(BaseModel):
     name: str
     email: EmailStr
-
+    role: str
 
 class AdminCreate(AdminBase):
     password: str
-
 
 class AdminUpdate(AdminBase):
     """Schema for updating admin details."""
     name: Optional[str] = None
     email: Optional[EmailStr] = None
+    role: Optional[str] = None
     password: Optional[str] = None
-
-
-class Admin(AdminBase):
-    id: int
-    hospital_id: int
-    hospital: Hospital  # This will include the hospital's details
-
-    class Config:
-        orm_mode = True
-
 
 class AdminOut(AdminBase):
     id: int
+    hospital: Optional[HospitalOut]  # Nested hospital details
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True
 
 # Doctor Schemas
 class DoctorBase(BaseModel):
     name: str
     email: EmailStr
-
+    specialty: str
 
 class DoctorCreate(DoctorBase):
     password: str
-
+    role: str
 
 class DoctorUpdate(DoctorBase):
     """Schema for updating doctor details."""
     name: Optional[str] = None
     email: Optional[EmailStr] = None
+    specialty: Optional[str] = None
     password: Optional[str] = None
 
-
-class Doctor(DoctorBase):
+class DoctorOut(DoctorBase):
     id: int
-    hospital_id: int
-    hospital: Hospital 
-    prescriptions: List["Prescription"] = []  # Prescriptions linked to the doctor
+    hospital: Optional[HospitalOut]  # Nested hospital details
+    prescriptions: List["PrescriptionOut"] = []  # List of prescriptions
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True
 
 # Patient Schemas
 class PatientBase(BaseModel):
     name: str
     email: EmailStr
 
-
 class PatientCreate(PatientBase):
     pass
-
 
 class PatientUpdate(PatientBase):
     """Schema for updating patient details."""
     name: Optional[str] = None 
     email: Optional[EmailStr] = None
 
-
-class Patient(PatientBase):
+class PatientOut(PatientBase):
     id: int
-    hospital_id: int
-    hospital: Hospital  # Hospital that the patient belongs to
-    prescriptions: List["Prescription"] = []  # Prescriptions linked to the patient
+    hospital: Optional[HospitalOut]  # Nested hospital details
+    prescriptions: List["PrescriptionOut"] = []  # List of prescriptions
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
+# Enum for disease type
+class DiseaseTypeEnum(str, Enum):
+    COMMUNICABLE = "communicable"
+    NON_COMMUNICABLE = "non_communicable"
 
 # Prescription Schemas
 class PrescriptionBase(BaseModel):
-    patient_id: int
-    doctor_id: int
     medication: str
     dosage: str
-    frequency: str
-    notes: Optional[str] = None
-
+    observations: Optional[str] = None
+    diagnosis: str
+    diseases_type: DiseaseTypeEnum
+    treatment_plan: Optional[str] = None
+    doctor_notes: Optional[str] = None
 
 class PrescriptionCreate(PrescriptionBase):
     pass
 
-
-class PrescriptionUpdate(PrescriptionBase):
-    """Schema for updating prescription details."""
+class PrescriptionUpdate(BaseModel):
     medication: Optional[str] = None
     dosage: Optional[str] = None
-    frequency: Optional[str] = None
-    notes: Optional[str] = None
+    doctor_notes: Optional[str] = None
+    observations: Optional[str] = None
+    diagnosis: Optional[str] = None
+    diseases_type: Optional[DiseaseTypeEnum] = None
+    treatment_plan: Optional[str] = None
 
-
-class Prescription(PrescriptionBase):
+class PrescriptionOut(PrescriptionBase):
     id: int
-    timestamp: datetime
+    created_at: datetime
+    updated_at: datetime
+    patient: Optional[PatientOut]  # Nested patient details
+    doctor: Optional[DoctorOut]  # Nested doctor details
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True
 
 # Dosage Document Schemas
 class DosageDocumentBase(BaseModel):
     title: str
     content: str
 
-
 class DosageDocumentCreate(DosageDocumentBase):
     pass
-
 
 class DosageDocumentUpdate(DosageDocumentBase):
     """Schema for updating dosage document details."""
     title: Optional[str] = None
     content: Optional[str] = None
 
-
-class DosageDocument(DosageDocumentBase):
+class DosageDocumentOut(DosageDocumentBase):
     id: int
     uploaded_by: int
     uploaded_at: datetime
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True
 
 # User-related schemas (for login)
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-
 
 class QueryDosageRequest(BaseModel):
     query: str
