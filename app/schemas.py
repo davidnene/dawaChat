@@ -119,6 +119,7 @@ class PrescriptionCreate(PrescriptionBase):
 class PrescriptionUpdate(BaseModel):
     medication: Optional[str] = None
     dosage: Optional[str] = None
+    doctor_notes: Optional[str] = None
     observations: Optional[str] = None
     diagnosis: Optional[str] = None
     diseases_type: Optional[DiseaseTypeEnum] = None
