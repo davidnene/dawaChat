@@ -9,6 +9,7 @@ from routes import super_admin, admin, doctor, rag
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 import os
+from utils.asdict import asdict
 
 
 @asynccontextmanager
@@ -58,7 +59,7 @@ def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     user = authenticate_user(login_request.email, login_request.password, db)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
-    token = create_access_token(data={"sub": user.email, "role": user.role})
+    token = create_access_token(data={"sub": user.email, "role": user.role, "hospital": asdict(user.hospital), "name": user.name})
     return {"access_token": token, "token_type": "bearer"}
 
 # Example of a route that requires super_admin role
