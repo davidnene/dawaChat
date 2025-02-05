@@ -9,7 +9,6 @@ from db import get_db
 from auth import get_current_user
 from fastapi.security import OAuth2PasswordBearer
 from auth import get_password_hash
-from sqlalchemy.inspection import inspect
 
 router = APIRouter()
 
