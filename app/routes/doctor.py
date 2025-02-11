@@ -45,7 +45,17 @@ async def create_prescription(
     db.commit()
     db.refresh(new_prescription)
     
-    return new_prescription
+    return {
+            **jsonable_encoder(new_prescription),
+            "patient": {
+                **jsonable_encoder(new_prescription.patient),
+                "hospital": jsonable_encoder(new_prescription.patient.hospital) 
+            } if new_prescription.patient else None,
+            "doctor": {
+                **jsonable_encoder(new_prescription.doctor),
+                "hospital": jsonable_encoder(new_prescription.doctor.hospital)  
+            } if new_prescription.doctor else None
+        }
 
 # Get Prescriptions for a Specific Patient
 @router.get("/api/prescriptions/{patient_id}", response_model=List[PrescriptionOut])
@@ -96,7 +106,12 @@ async def update_prescription(
     
     existing_prescription.medication = prescription.medication or existing_prescription.medication
     existing_prescription.dosage = prescription.dosage or existing_prescription.dosage
+    existing_prescription.observations = prescription.observations or existing_prescription.observations
+    existing_prescription.diagnosis = prescription.diagnosis or existing_prescription.diagnosis
+    existing_prescription.diseases_type = prescription.diseases_type or existing_prescription.diseases_type
+    existing_prescription.treatment_plan = prescription.treatment_plan or existing_prescription.treatment_plan
     existing_prescription.doctor_notes = prescription.doctor_notes or existing_prescription.doctor_notes
+
     db.commit()
     db.refresh(existing_prescription)
     
