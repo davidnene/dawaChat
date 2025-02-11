@@ -22,8 +22,9 @@ def seed_database():
     # Create hospitals
     hospital1 = Hospital(name="Admin Hospital Hold", location="Nairobi")
     hospital2 = Hospital(name="Kenyatta National Hospital", location="Nairobi")
+    hospital3 = Hospital(name="Kijabe Mission Hospital", location="Kijabe")
 
-    db.add_all([hospital1, hospital2])
+    db.add_all([hospital1, hospital2, hospital3])
     db.commit()
 
     # Create the super admin
@@ -74,7 +75,7 @@ def seed_database():
         role="doctor",
         specialty="Nurse",
         hashed_password=get_password_hash("doctorpassword3"),
-        hospital_id=hospital1.id
+        hospital_id=hospital3.id
     )
 
     db.add_all([super_admin, admin1, admin2, doctor1, doctor2, doctor3])
@@ -84,7 +85,7 @@ def seed_database():
     patients = [
         Patient(name="Alice Johnson", email="alice@example.com", hospital_id=hospital1.id),
         Patient(name="Bob Smith", email="bob@example.com", hospital_id=hospital1.id),
-        Patient(name="Charlie Davis", email="charlie@example.com", hospital_id=hospital2.id),
+        Patient(name="Charlie Davis", email="charlie@example.com", hospital_id=hospital3.id),
     ]
 
     db.add_all(patients)
