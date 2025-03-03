@@ -67,7 +67,7 @@ The Dawa Chat project aims to leverage the power of Large Language Models (LLMs)
 - **Framework**: ReactJS
 - **Styling**: Bootstrap and Material UI
 
-### Authentication and Authorization
+<!-- ### Authentication and Authorization
 - **Method**: Token-based authentication using JWT
 - **Access Control**:
   - Only administrators can upload dosage files and create doctor profiles.
@@ -136,7 +136,7 @@ docker-compose up --build
 # open your browser and acess the server
 http://localhost:3000
 
-```
+``` -->
 ## Expected Outcomes
 - Enhanced prescription information retrieval from the KNMF.
 - Improved accessibility and accuracy of medication-related data.
