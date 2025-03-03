@@ -36,8 +36,32 @@ The Dawa Chat project aims to leverage the power of Large Language Models (LLMs)
 #### Login page
 <img src="app/static/design_diagrams/login_page.png" alt="Login Page" width="500">
 
+#### Dashboard
+<img src="app/static/design_diagrams/dashboard.png" alt="Dashboard" width="500">
+
+#### Sidebar
+<img src="app/static/design_diagrams/sidebar.png" alt="Sidebar" width="500">
+
+#### Prescriptions Page
+<img src="app/static/design_diagrams/prescriptions_page.png" alt="Prescriptions Page" width="500">
+
+### Select Patient
+<img src="app/static/design_diagrams/select_patient.png" alt="Select Patient" width="500">
+
+### Add prescription
+<img src="app/static/design_diagrams/add_prescription.png" alt="Add Prescription" width="500">
+
+### View Prescription
+<img src="app/static/design_diagrams/view_prescription.png" alt="View Prescription" width="500">
+
+### Edit Prescription
+<img src="app/static/design_diagrams/edit_prescription.png" alt="Edit Prescription" width="500">
+
+#### Open Dosage Query page
+<img src="app/static/design_diagrams/open_query_dosage.png" alt=" Open Dosage Query" width="500">
+
 #### Dosage Query page
-<img src="app/static/design_diagrams/dosage_query.png" alt="Dosage Query Page" width="500">
+<img src="app/static/design_diagrams/query_dosage_info.png" alt="Dosage Query" width="500">
 
 ### [Frontend](https://github.com/davidnene/dawachat_frontend)
 - **Framework**: ReactJS
