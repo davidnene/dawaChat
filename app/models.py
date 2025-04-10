@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Enum, Float
 from sqlalchemy.orm import relationship
 from db import Base
 from datetime import datetime, timezone
@@ -54,6 +54,8 @@ class Doctor(Base):
     hospital_id = Column(Integer, ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False)
     hospital = relationship("Hospital", back_populates="doctors")
     prescriptions = relationship("Prescription", back_populates="doctor")
+    stress_logs = relationship("StressLog", back_populates="doctor")
+    iot_data = relationship("EmpaticaIotData", back_populates="doctor", cascade="all, delete")
 
 class Patient(Base):
     __tablename__ = "patients"
@@ -94,3 +96,32 @@ class DosageDocument(Base):
     content = Column(String, nullable=False)
     uploaded_by = Column(Integer, ForeignKey("admins.id"))
     uploaded_at = Column(DateTime, default=datetime.utcnow)
+
+class StressLog(Base):
+    __tablename__ = "stress_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    doctor_id = Column(Integer, ForeignKey("doctors.id"))
+    doctor_name = Column(String, nullable=False)
+    stress_level = Column(Integer)  # 0: no stress, 1: mild, 2: severe
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    doctor = relationship("Doctor", back_populates="stress_logs")
+    
+class EmpaticaIotData(Base):
+    __tablename__ = "empatica_iot_data"
+
+    id = Column(Integer, primary_key=True, index=True)
+    doctor_id = Column(Integer, ForeignKey("doctors.id"), nullable=False)
+
+    x = Column(Float, nullable=False)
+    y = Column(Float, nullable=False)
+    z = Column(Float, nullable=False)
+
+    eda = Column(Float, nullable=False)  # Electrodermal activity
+    heart_rate = Column(Float, nullable=False)
+    temperature = Column(Float, nullable=False)
+
+    time_of_day = Column(String, nullable=False)
+    day_of_week = Column(String, nullable=False)
+
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    doctor = relationship("Doctor", back_populates="iot_data")
