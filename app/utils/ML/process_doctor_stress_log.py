@@ -13,12 +13,12 @@ def process_doctor_stress_log(doctor_id: int, doctor_name: str, db):
 
     # Convert records to DataFrame
     records_df = pd.DataFrame([{
-        "x": r.x,
-        "y": r.y,
-        "z": r.z,
-        "eda": r.eda,
-        "heart_rate": r.heart_rate,
-        "temperature": r.temperature,
+        "X": r.x,
+        "Y": r.y,
+        "Z": r.z,
+        "EDA": r.eda,
+        "HR": r.heart_rate,
+        "TEMP": r.temperature,
         "time_of_day": r.time_of_day,
         "day_of_week": r.day_of_week
     } for r in recent_records])
@@ -30,10 +30,11 @@ def process_doctor_stress_log(doctor_id: int, doctor_name: str, db):
         log = StressLog(
             doctor_id=doctor_id,
             doctor_name=doctor_name,
-            stress_level=result["predicted_class"],
+            stress_level="mild" if result["predicted_class"] == 1 else "severe",
             timestamp=datetime.utcnow()
         )
         db.add(log)
         db.commit()
         print("Stress Detection Successful!")
+        print(result["predicted_class"])
     return result
