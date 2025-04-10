@@ -9,12 +9,13 @@ import os
 # le_time = joblib.load('label_encoder_time.pkl')
 # le_day = joblib.load('label_encoder_day.pkl')
 # Load the models with pickle
-# xgb_classifier = pickle.load(open('xgb_classifier_model.pkl', 'rb'))
+# xgb_classifier = pickle.load(open('app/utils/ML/models/xgb_classifier_model.pkl', 'rb'))
 # MinMaxScaler = pickle.load(open('scaler.pkl', 'rb'))
 # le_time = pickle.load(open('label_encoder_time.pkl', 'rb'))
 # le_day = pickle.load(open('label_encoder_day.pkl', 'rb'))
 
-model_directory = r'app/utils/ML/models'
+model_directory = r'/home/davidnene/dawaChat/app/utils/ML/models'
+
 # Use os.path.join to create file paths
 xgb_classifier_path = os.path.join(model_directory, 'xgb_classifier_model.pkl')
 scaler_path = os.path.join(model_directory, 'scaler.pkl')
