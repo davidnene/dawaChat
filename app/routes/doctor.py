@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from models import Prescription, Patient
-from schemas import PrescriptionCreate, PrescriptionUpdate, PrescriptionOut
+from models import Prescription, Patient, EmpaticaIotData
+from schemas import PrescriptionCreate, PrescriptionUpdate, PrescriptionOut, EmpaticaDataIn
 from utils.rbac import verify_role
+from utils.IoT.categorize_time_of_day import categorize_time_of_day
 from utils.asdict import asdict
 from db import get_db
 from auth import get_current_user
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.encoders import jsonable_encoder
+from datetime import datetime
 
 router = APIRouter()
 
@@ -144,3 +146,38 @@ async def delete_prescription(
     db.delete(prescription)
     db.commit()
     return {"detail": "Prescription deleted successfully"}
+
+@router.post("/api/empatica-data/", status_code=status.HTTP_201_CREATED)
+async def receive_empatica_data(
+    data: EmpaticaDataIn,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    current_user = get_current_user(token, db)
+    verify_role(current_user, "doctor")
+
+    now = datetime.utcnow()
+    hour = now.hour
+    day_of_week = now.strftime("%A").lower()
+
+    new_record = EmpaticaIotData(
+        doctor_id=current_user.id,
+        x=data.x,
+        y=data.y,
+        z=data.z,
+        eda=data.eda,
+        heart_rate=data.hr,
+        temperature=data.temp,
+        time_of_day=categorize_time_of_day(hour),
+        day_of_week=day_of_week,
+        # timestamp=datetime.utcnow()
+    )
+
+    db.add(new_record)
+    db.commit()
+    db.refresh(new_record)
+
+    return {
+        "detail": "Empatica wearable data saved successfully",
+        "record_id": new_record.id
+    }
