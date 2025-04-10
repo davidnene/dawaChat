@@ -163,3 +163,13 @@ class LoginRequest(BaseModel):
 
 class QueryDosageRequest(BaseModel):
     query: str
+    
+class EmpaticaDataIn(BaseModel):
+    x: float 
+    y: float 
+    z: float 
+    eda: float 
+    hr: float 
+    temp: float 
+    time_of_day: str 
+    day_of_week: str 
