@@ -1,9 +1,11 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
-from models import Patient, Prescription, Doctor, Admin, Hospital, DiseaseTypeEnum
+from models import Patient, Prescription, Doctor, Admin, Hospital, DiseaseTypeEnum, EmpaticaIotData
 from db import SessionLocal, engine, Base
 from auth import get_password_hash
 from dotenv import load_dotenv
+import random
+from utils.IoT.categorize_time_of_day import categorize_time_of_day
 
 load_dotenv(override=True)
 
@@ -138,12 +140,39 @@ def seed_database():
             updated_at=datetime.now(timezone.utc)
         ),
     ]
+    
+    # List of all doctors
+    doctors = [doctor1, doctor2, doctor3]
+
+    for doctor in doctors:
+        for i in range(10):
+            now = datetime.now(timezone.utc) - timedelta(minutes=i * 5)
+            hour = now.hour
+            day_of_week = now.strftime("%A").lower()
+            time_of_day = categorize_time_of_day(hour)
+
+            iot_record = EmpaticaIotData(
+                doctor_id=doctor.id,
+                x=round(random.uniform(-2, 2), 2),
+                y=round(random.uniform(-2, 2), 2),
+                z=round(random.uniform(-2, 2), 2),
+                eda=round(random.uniform(0.1, 10.0), 2),
+                heart_rate=random.randint(60, 110),
+                temperature=round(random.uniform(36.0, 38.5), 2),
+                time_of_day=time_of_day,
+                day_of_week=day_of_week
+            )
+
+            db.add(iot_record)
+
+    
+    
 
     db.add_all(prescriptions)
     db.commit()
 
     db.close()
-    print("Database seeded with super_admin, admins, hospitals, doctors, patients, and prescriptions.")
+    print("Database seeded with super_admin, admins, hospitals, doctors, patients, prescriptions and IoT device data.")
 
 if __name__ == "__main__":
     Base.metadata.drop_all(bind=engine)  # Drop existing tables
