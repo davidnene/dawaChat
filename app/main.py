@@ -8,6 +8,7 @@ from db import SessionLocal
 from routes import super_admin, admin, doctor, rag
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
+from utils.ML.process_doctor_stress_log import process_doctor_stress_log
 import os
 from utils.asdict import asdict
 
@@ -57,6 +58,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 @app.post("/api/login")
 def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     user = authenticate_user(login_request.email, login_request.password, db)
+    if user.role == "doctor":
+        process_doctor_stress_log(user.id, user.name, db)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     token = create_access_token(data={"sub": user.email, "role": user.role, "hospital": asdict(user.hospital), "name": user.name})
