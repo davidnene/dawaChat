@@ -102,7 +102,7 @@ class StressLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
     doctor_name = Column(String, nullable=False)
-    stress_level = Column(Integer)  # 0: no stress, 1: mild, 2: severe
+    stress_level = Column(String) 
     timestamp = Column(DateTime, default=datetime.utcnow)
     doctor = relationship("Doctor", back_populates="stress_logs")
     
