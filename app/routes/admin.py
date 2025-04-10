@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from typing import List
-from models import Doctor, Patient, Admin, Hospital, Prescription
+from models import Doctor, Patient, Admin, Hospital, Prescription, StressLog
 from schemas import DoctorCreate, DoctorUpdate, PatientCreate, PatientUpdate, PatientOut
 from utils.rbac import verify_role
 from utils.asdict import asdict
@@ -9,6 +9,8 @@ from db import get_db
 from auth import get_current_user
 from fastapi.security import OAuth2PasswordBearer
 from auth import get_password_hash
+from datetime import datetime
+import pytz
 
 router = APIRouter()
 
@@ -214,3 +216,46 @@ async def delete_patient(
     db.delete(patient)
     db.commit()
     return {"detail": "Patient deleted successfully"}
+
+# Get All Stress Logs for the Day (Admin Only)
+@router.get("/api/stress-logs-today/")
+async def get_stress_logs_today(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    current_user = get_current_user(token, db)
+    
+    verify_role(current_user, "admin")
+    tz = pytz.timezone("Africa/Nairobi")
+    today_start = datetime.now(tz).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_end = datetime.now(tz).replace(hour=23, minute=59, second=59, microsecond=999999)
+    
+   # Get stress logs for doctors only in admin's hospital
+    stress_logs = (
+        db.query(StressLog)
+        .join(Doctor)
+        .filter(
+            Doctor.hospital_id == current_user.hospital_id,
+            StressLog.timestamp >= today_start,
+            StressLog.timestamp <= today_end
+        )
+        .options(joinedload(StressLog.doctor))
+        .all()
+    )
+
+    if not stress_logs:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No stress logs found for today."
+        )
+    
+    return [
+        {
+            "id": log.id,
+            "doctor_name": log.doctor_name,
+            "doctor_id": log.doctor_id,
+            "stress_level": log.stress_level,
+            "timestamp": f'{log.timestamp.strftime("%H:%M")} EAT - {log.timestamp.strftime("%Y-%m-%d")}'
+        }
+        for log in stress_logs
+    ]

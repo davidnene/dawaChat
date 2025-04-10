@@ -2,6 +2,7 @@ from models import EmpaticaIotData, StressLog
 from datetime import datetime
 import pandas as pd
 from utils.ML.stress_detection import predict_avg_probability
+import pytz
 
 def process_doctor_stress_log(doctor_id: int, doctor_name: str, db):
     
@@ -26,12 +27,13 @@ def process_doctor_stress_log(doctor_id: int, doctor_name: str, db):
     # pass to the predictor function
     result = predict_avg_probability(records_df)
 
+    tz = pytz.timezone("Africa/Nairobi")
     if result["predicted_class"] == 1 or result["predicted_class"] == 2:
         log = StressLog(
             doctor_id=doctor_id,
             doctor_name=doctor_name,
             stress_level="mild" if result["predicted_class"] == 1 else "severe",
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(tz)
         )
         db.add(log)
         db.commit()
