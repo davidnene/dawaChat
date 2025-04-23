@@ -22,7 +22,7 @@ def seed_database():
         return
 
     # Create hospitals
-    hospital1 = Hospital(name="Admin Hospital Hold", location="Nairobi")
+    hospital1 = Hospital(name="Nairobi Hospital", location="Nairobi")
     hospital2 = Hospital(name="Kenyatta National Hospital", location="Nairobi")
     hospital3 = Hospital(name="Kijabe Mission Hospital", location="Kijabe")
 
