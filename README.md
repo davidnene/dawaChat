@@ -146,6 +146,8 @@ http://localhost:3000
 Dawa Chat aims to revolutionize how healthcare professionals in Kenya access medication information, ultimately contributing to safer and more effective patient care. By integrating advanced technologies such as LLMs and Knowledge Graphs, this project represents a significant step forward in the digital transformation of healthcare.
 
 ## Update [23/04/2025] - Added Stress Detection ML Module
+
+### **Psychological Stress Detection with Ensemble Machine Learning Techniques**
 ### **Background**
 
 The widespread adoption of wearable technologies has opened up novel avenues for real-time health monitoring, particularly for detecting stress. In high-stakes environments like hospitals, stress detection is crucial for safeguarding the mental well-being of healthcare workers. Physiological signals such as Electrodermal Activity (EDA), Heart Rate (HR), and Skin Temperature (TEMP) serve as useful biomarkers for stress recognition. This project focuses on a dataset derived from hospital nurses who wore Empatica E4 devices during their shifts, enabling continuous data collection in a real-world setting.
