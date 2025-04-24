@@ -38,7 +38,7 @@ Please login and change it immediately.
     <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
       <h2 style="color: #333;">👋 Hello {name},</h2>
       <p style="font-size: 16px; color: #555;">
-        You have been granted access to the system. Below is your temporary password:
+        You have been granted access to the dawaChat system. Below is your temporary password:
       </p>
       <p style="font-size: 18px; color: #000; font-weight: bold; background: #e8f0fe; padding: 10px 20px; border-radius: 5px; display: inline-block;">
         {password}
