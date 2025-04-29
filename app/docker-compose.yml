@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:root@database:5432/dawachat
+      - DATABASE_URL=postgresql://postgres:postgres@database:5432/dawachat
     depends_on:
       - database
 
@@ -21,7 +21,7 @@ services:
     image: postgres:14
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: dawachat
     ports:
       - "5432:5432"
