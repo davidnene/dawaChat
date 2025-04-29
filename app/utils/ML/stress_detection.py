@@ -5,7 +5,8 @@ import pickle
 import os
 
 
-model_directory = r'/home/davidnene/dawaChat/app/utils/ML/models'
+# model_directory = r'/home/davidnene/dawaChat/app/utils/ML/models'
+model_directory = r'/app/utils/ML/models'
 
 # Use os.path.join to create file paths
 xgb_classifier_path = os.path.join(model_directory, 'xgb_classifier_model.pkl')
