@@ -9,6 +9,8 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@database:5432/dawachat
     depends_on:
       - database
+    networks:
+      - dawachat_net
 
   frontend:
     build: ../../dawachat_frontend/
@@ -16,6 +18,8 @@ services:
       - "3000:80" 
     depends_on:
       - backend
+    networks:
+      - dawachat_net
 
   database:
     image: postgres:14
@@ -27,6 +31,12 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - dawachat_net
 
 volumes:
   db_data:
+
+networks:
+  dawachat_net:
+    driver: bridge
