@@ -7,13 +7,19 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@database:5432/dawachat
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=database
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=dawachat
+
     depends_on:
       - database
     networks:
       - dawachat_net
 
   frontend:
-    build: ../../dawachat_frontend/
+    build: ../dawachat_frontend/
     ports:
       - "3000:80" 
     depends_on:
