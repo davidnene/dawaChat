@@ -16,7 +16,7 @@ services:
       - MAIL_USER=${MAIL_USER}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - SMTP_PORT=${SMTP_PORT}
-
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       - database
     networks:
