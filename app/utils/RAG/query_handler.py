@@ -26,7 +26,7 @@ def get_dosage_info(query: str):
     from the Kenya National Medicines Formulary (KNMF).
 
     Based on the following information from the KNMF, answer the question appropriately. 
-    If the question is unrelated to dosage information retrieval from the KNMF, respond with:
+    If the question is unrelated to medical context, respond with:
 
     "This is out of context for my assistance. I can only answer queries related to dosage information retrieval from the Kenya National Medicines Formulary. For further technical assistance, contact your admin or email support@dawachat.ai."
 
