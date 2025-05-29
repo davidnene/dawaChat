@@ -43,6 +43,32 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - dawachat_net
+  
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    depends_on:
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    networks:
+      - dawachat_net
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    command: certonly --webroot -w /var/www/certbot --email info@advernet.africa --agree-tos --no-eff-email -d dawachat.advernet.africa
+
+    networks:
+      - dawachat_net
 
 volumes:
   db_data:
