@@ -28,6 +28,9 @@ services:
       - "80"
     depends_on:
       - backend
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      
     networks:
       - dawachat_net
 
