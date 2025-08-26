@@ -47,7 +47,7 @@ class AdminUpdate(AdminBase):
 
 class AdminOut(AdminBase):
     id: int
-    hospital: Optional[HospitalOut]  # Nested hospital details
+    hospital_name: Optional[str] = None  # Nested hospital details
 
     class Config:
         from_attributes = True

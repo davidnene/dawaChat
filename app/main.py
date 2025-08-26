@@ -11,19 +11,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from utils.ML.process_doctor_stress_log import process_doctor_stress_log
 import os
 from utils.asdict import asdict
+from seed_db import seed_database
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.db = SessionLocal()
+    seed_database()
     yield  # The application runs while this is active
     app.state.db.close()
 
 app = FastAPI(lifespan=lifespan)
 
-origins = [
-    "http://localhost:3000"
-]
+origins = ["*"]
 
 # Add CORS middleware
 app.add_middleware(

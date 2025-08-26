@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Enum, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Enum, Float, Boolean
 from sqlalchemy.orm import relationship
 from db import Base
 from datetime import datetime, timezone
@@ -39,6 +39,7 @@ class Admin(Base):
     email = Column(String, unique=True, nullable=False)
     role = Column(String, nullable=False) 
     hashed_password = Column(String, nullable=False)
+    is_temporary_password = Column(Boolean, default=True)
     hospital_id = Column(Integer, ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False)
     hospital = relationship("Hospital", back_populates="admins")
     
@@ -51,6 +52,7 @@ class Doctor(Base):
     specialty = Column(String)
     role = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
+    is_temporary_password = Column(Boolean, default=True)
     hospital_id = Column(Integer, ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False)
     hospital = relationship("Hospital", back_populates="doctors")
     prescriptions = relationship("Prescription", back_populates="doctor")

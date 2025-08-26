@@ -8,6 +8,7 @@ from db import get_db
 from auth import get_current_user
 from fastapi.security import OAuth2PasswordBearer
 from auth import get_password_hash
+from utils.Notifications.credentials_verify import generate_temp_password, send_temporary_password
 
 router = APIRouter()
 
@@ -108,18 +109,20 @@ async def create_admin(
     if db.query(Admin).filter(Admin.email == admin.email).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin email already exists")
 
-    hashed_password = get_password_hash(admin.password)
+    temp_password = generate_temp_password()
+    hashed_password = get_password_hash(temp_password)
     new_admin = Admin(
         name=admin.name,
         email=admin.email,
         role=admin.role,
         hashed_password=hashed_password,
+        is_temporary_password=True,
         hospital_id=hospital.id
     )
+    send_temporary_password(new_admin.email, temp_password, new_admin.name)
     db.add(new_admin)
     db.commit()
     db.refresh(new_admin)
-
     return AdminOut(id=new_admin.id, name=new_admin.name, email=new_admin.email, role=new_admin.role, hospital_name=new_admin.hospital.name)
 
 
